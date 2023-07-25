@@ -1,4 +1,5 @@
 # 🤖 Unconditional MusicGen Trainer 🤖
+(Dadabots fork)
 
 This repository extends the [Audiocraft](https://github.com/facebookresearch/audiocraft) repository with a Trainer Class which trains the finetuned model unconditional.
 Input prompts are the same for all the data trained on. The model converges but old learned sounds will vanish. 
