@@ -5,6 +5,7 @@ from audiocraft.models import MusicGen
 from generate_inf import generate_long_seq
 from util import display_audio
 import sys
+from datetime import datetime
 
 dataset_cfg = dict(
         dataset_path_train = "train",
@@ -19,17 +20,18 @@ dataset_cfg = dict(
 
 cfg = dict(
     learning_rate = 0.0001,
-    epochs = 80,
+    epochs = 100,
     model = "small",
     seed = (hash("blabliblu") % 2**32 - 1),
-    use_wandb = True
-)
+    use_wandb = False)
 
 if __name__ == '__main__':
-
+    
     if sys.argv[1] == 'train':
-        wandb.login()
-        main(sys.argv[1], cfg, dataset_cfg, '')
+        if cfg['use_wandb']:
+            wandb.login()
+        ts = datetime.timestamp(datetime.now())
+        main(sys.argv[2], cfg, dataset_cfg, ts)
 
     elif sys.argv[1] == 'generate':
         print('loading model')
