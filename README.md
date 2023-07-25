@@ -21,6 +21,12 @@ Input prompts are the same for all the data trained on. The model converges but 
 
 For training you need two datasets for training and evaluation with sound files in `.wav`, `.mp3`, `.flac`, `.ogg`, `.m4a`
 
+run script:
+
+```python run.py train MODELNAME```
+
+or copy this to notebook:
+
 ```python
 from train import main
 
@@ -70,6 +76,12 @@ Work in progress. The model is currently overfitting
 
 ## 🎼 Generation
 The text prompt is replaced by audio previously generated. Therefore, the model can generate new samples that are coherent. `display_audio` merges all samples generated.
+
+run script:
+
+```python run.py generate MODEL_NAME```
+
+or copy this to notebook:
 
 ```python
 from generate_inf import generate_long_seq
