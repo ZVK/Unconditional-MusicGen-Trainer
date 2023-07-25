@@ -2,7 +2,7 @@ from audiocraft.models import MusicGen
 import torch
 import numpy as np
 import torch.nn as nn
-from torch.optim import AdamW, lr_scheduler
+from torch.optim import AdamW #, lr_scheduler
 import torch.nn.functional as F
 import typing as tp
 import random
@@ -96,6 +96,8 @@ def train(
         # tqdm.write(f"Epoch: {epoch}/{num_epochs}, Batch: {batch_idx}/{len(dataset)}, Loss: {loss.item()}")
         if use_wandb:
             run.log({"loss train": loss.item()}, step=current_step)
+        else:
+            print({"loss train": loss.item()})
         current_step += 1
 
     return current_step
@@ -213,6 +215,8 @@ def main(
 
         if config["use_wandb"]:
             run.log({"loss eval": valid_loss}, step=current_step)
+        else:
+            print({"loss eval": valid_loss})
 
         if valid_loss < best_loss:
             best_loss = valid_loss
