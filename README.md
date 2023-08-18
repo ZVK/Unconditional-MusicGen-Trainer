@@ -41,7 +41,7 @@ generate from a trained model
 
 generate a range of examples with hyperparameter grid search
 
-```python run.py blend PTFILE WAVFILE(optional)```
+```python run.py blend PTDIR WAVFILE(optional)```
 
 blend multiple checkpoints trained in ensemble mode
 
