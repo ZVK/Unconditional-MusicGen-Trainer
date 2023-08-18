@@ -19,11 +19,7 @@ Input prompts are the same for all the data trained on. The model converges but 
     !pip install wandb #optional
     
 
-## 💡 Training
-
-For training you need two datasets for training and evaluation with sound files in `.wav`, `.mp3`, `.flac`, `.ogg`, `.m4a`
-
-## 👟 run script:
+## 👟 Run Commands
 
 ```python run.py train MODELNAME PTFILE(optional)```
 
@@ -49,7 +45,9 @@ generate a range of examples with hyperparameter grid search
 
 blend multiple checkpoints trained in ensemble mode
 
+## 💡 Training
 
+For training you need two datasets for training and evaluation with sound files in `.wav`, `.mp3`, `.flac`, `.ogg`, `.m4a`
 or copy this to notebook:
 
 ```python
