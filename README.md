@@ -23,7 +23,7 @@ Input prompts are the same for all the data trained on. The model converges but 
 
 For training you need two datasets for training and evaluation with sound files in `.wav`, `.mp3`, `.flac`, `.ogg`, `.m4a`
 
-run script:
+## 👟 run script:
 
 ```python run.py train MODELNAME PTFILE(optional)```
 
