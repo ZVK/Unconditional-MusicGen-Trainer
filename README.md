@@ -1,5 +1,6 @@
 # 🤖 Unconditional MusicGen Trainer 🤖
 (Dadabots fork)
+Don't use this repo yet - it currently runs off audiocraft fork with edits to lm and musicgen accepting torch generator
 
 This repository extends the [Audiocraft](https://github.com/facebookresearch/audiocraft) repository with a Trainer Class which trains the finetuned model unconditional.
 Input prompts are the same for all the data trained on. The model converges but old learned sounds will vanish. 
@@ -24,7 +25,30 @@ For training you need two datasets for training and evaluation with sound files 
 
 run script:
 
-```python run.py train MODELNAME```
+```python run.py train MODELNAME PTFILE(optional)```
+
+normal training
+
+```python run.py tune MODELNAME PTFILE(optional)```
+
+reduce learning rate training
+
+```python run.py ensemble MODELNAME PTFILE(optional)```
+
+experimental cosine annealing lr scheduler training
+
+```python run.py generate PTFILE WAVFILE(optional)```
+
+generate from a trained model
+
+```python run.py explore PTFILE WAVFILE(optional)```
+
+generate a range of examples with hyperparameter grid search
+
+```python run.py blend PTFILE WAVFILE(optional)```
+
+blend multiple checkpoints trained in ensemble mode
+
 
 or copy this to notebook:
 
