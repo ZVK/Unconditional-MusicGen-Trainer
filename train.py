@@ -2,7 +2,7 @@ from audiocraft.models import MusicGen
 import torch
 import numpy as np
 import torch.nn as nn
-from torch.optim import AdamW #, lr_scheduler
+from torch.optim import AdamW, lr_scheduler
 import torch.nn.functional as F
 import typing as tp
 import random
@@ -14,7 +14,7 @@ import os
 from tqdm.notebook import tqdm
 
 from dataloader import create_dataloaders
-
+from datetime import datetime
 
 def count_nans(tensor):
     nan_mask = torch.isnan(tensor)
@@ -41,6 +41,8 @@ def train(
     model,
     dataloader,
     optimizer,
+    scheduler,
+    epoch,
     criterion,
     model_name,
     scaler,
@@ -49,7 +51,8 @@ def train(
     current_step,
 ):
     model.lm.train()
-    for _, batch in enumerate(dataloader):
+    print(len(dataloader), 'batches in dataloader')
+    for i, batch in enumerate(dataloader):
         optimizer.zero_grad()
 
         audio = batch.cuda()
@@ -92,7 +95,7 @@ def train(
 
         scaler.step(optimizer)
         scaler.update()
-
+        scheduler.step(epoch + i / len(dataloader))
         # tqdm.write(f"Epoch: {epoch}/{num_epochs}, Batch: {batch_idx}/{len(dataset)}, Loss: {loss.item()}")
         if use_wandb:
             run.log({"loss train": loss.item()}, step=current_step)
@@ -145,7 +148,7 @@ def evaluate(model, dataloader, optimizer, criterion, model_name, use_wandb, run
             epoch_loss += loss.item()
             assert count_nans(masked_logits) == 0
 
-            # tqdm.write(f"Epoch: {epoch}/{num_epochs}, Batch: {batch_idx}/{len(dataset)}, Loss: {loss.item()}")
+            #tqdm.write(f"Epoch: {epoch}/{num_epochs}, Batch: {batch_idx}/{len(dataset)}, Loss: {loss.item()}")
 
     return epoch_loss / len(dataloader)
 
@@ -179,6 +182,9 @@ def main(
 
     dataloader_train, dataloader_eval = create_dataloaders(dataset_cfg)
     model = MusicGen.get_pretrained(config["model"])
+    if config['pt']:
+        print('attempting to load from pt file')
+        model.lm.load_state_dict(torch.load(config["pt"]))
     model.lm = model.lm.to(torch.float32)  # important
 
     scaler = torch.cuda.amp.GradScaler()
@@ -188,8 +194,8 @@ def main(
         betas=(0.9, 0.95),
         weight_decay=0.1,
     )
-    # scheduler = lr_scheduler.CosineAnnealingLR(optimizer=optimizer,
-    #                                              verbose=True)
+    T_0 = 5 # epochs before restart of LR cosine annealing 
+    scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, verbose=False)
     criterion = nn.CrossEntropyLoss()
 
     save_path = "models/"
@@ -202,6 +208,8 @@ def main(
             model,
             dataloader_train,
             optimizer,
+            scheduler,
+            epoch,
             criterion,
             model_name,
             scaler,
@@ -220,10 +228,12 @@ def main(
 
         if valid_loss < best_loss:
             best_loss = valid_loss
-            torch.save(model.lm.state_dict(), f"{save_path}/lm_{model_name}_final.pt")
+            torch.save(model.lm.state_dict(), f"{save_path}/{model_name}_{epoch}_{valid_loss}.pt")
+            print(f'saving model {epoch} {valid_loss}')
+        else:
+            print(f'current loss {valid_loss} is {valid_loss-best_loss} worse than best loss {best_loss}')
 
-        # scheduler.step()
-
-    torch.save(model.lm.state_dict(), f"{save_path}/lm_{model_name}_end.pt")
+    ts = datetime.timestamp(datetime.now())
+    torch.save(model.lm.state_dict(), f"{save_path}/{model_name}_end_{ts}.pt")
     if config["use_wandb"]:
         wandb.finish()
